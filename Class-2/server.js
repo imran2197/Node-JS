@@ -1,94 +1,79 @@
 const express = require("express");
 const app = express();
-
 app.use(express.json());
 
-let notes = [
-  { id: 1, title: "First note" },
-  { id: 2, title: "Second note" },
+const loggerMiddleware = (req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method}
+${req.url}`);
+  next();
+};
+
+app.use(loggerMiddleware);
+
+app.get("/", (req, res) => {
+  res.send("Hello, Express!");
+});
+
+app.post("/data", (req, res) => {
+  console.log(req.body);
+  res.send("Received a POST request.");
+});
+
+const users = [
+  { id: 1, name: "User 1" },
+  { id: 2, name: "User 2" },
 ];
 
-// Already implemented - DO NOT CHANGE
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Server is running",
-  });
-});
+app.post("/users", (req, res) => {
+  const newUser = req.body;
+  newUser.id = users.length + 1;
 
-// Already implemented - DO NOT CHANGE
-app.get("/notes", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Notes fetched successfully",
-    data: notes,
-  });
-});
-
-// TODO: Strengthen this POST endpoint with enhanced validation
-app.post("/notes", (req, res) => {
-  const { title } = req.body;
-
-  // Basic check - already provided
-  if (!title) {
-    res.status(400).json({
-      success: false,
-      message: "Note title is required",
-    });
-  }
-
-  // TODO: Add validation to check if title is a string
-  // If not, return: { success: false, message: "Note title must be a string" }
-  if (typeof title !== "string") {
-    res.status(400).json({
-      success: false,
-      message: "Note title must be a string",
-    });
-  }
-
-  // TODO: Trim the title and store in a variable called trimmedTitle
-  const trimmedTitle = title.trim();
-  // TODO: Add validation to check if trimmedTitle is empty (length === 0)
-  // If empty, return: { success: false, message: "Note title cannot be empty" }
-  if (trimmedTitle.length == 0) {
-    res.status(400).json({
-      success: false,
-      message: "Note title cannot be empty",
-    });
-  }
-
-  // TODO: Add validation to check if trimmedTitle length exceeds 100 characters
-  // If too long, return: { success: false, message: "Note title cannot exceed 100 characters" }
-  if (trimmedTitle.length > 100) {
-    res.status(400).json({
-      success: false,
-      message: "Note title cannot exceed 100 characters",
-    });
-  }
-
-  // TODO: Use trimmedTitle instead of title when creating the note
-  const newNote = {
-    id: notes.length + 1,
-    title: trimmedTitle, // Change this to use trimmedTitle after implementing trimming
-  };
-
-  notes.push(newNote);
-
+  users.push(newUser);
   res.status(201).json({
-    success: true,
-    message: "Note created successfully",
-    data: newNote,
+    message: "User Created",
+    user: newUser,
   });
 });
 
-// 404 handler - DO NOT CHANGE
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
+app.get("/users/:id", (req, res) => {
+  const userId = parseInt(req.params.id);
+
+  const found = users.find((user) => user.id === userId);
+  if (found) {
+    return res.status(200).json({
+      message: "User found",
+      data: found,
+    });
+  }
+  return res.status(404).json({
+    message: "User not found",
   });
 });
 
-app.listen(8888, (req, res) => {
-  console.log("App Running");
+app.delete("/users/:id", (req, res) => {
+  const userId = parseInt(req.params.id);
+
+  const userIndex = users.findIndex((user) => user.id === userId);
+  if (userIndex === -1) {
+    return res.status(404).json({
+      message: "User Not Found",
+    });
+  }
+
+  users.splice(userId - 1, 1);
+  return res.status(200).json({
+    message: "User deleted",
+  });
+});
+
+app.get("/users", (req, res) => {
+  return res.status(200).json({
+    message: "Users Data",
+    data: users,
+  });
+});
+
+const port = 8888;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
