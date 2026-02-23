@@ -2,6 +2,7 @@ const connectDb = require("./config/dbConfig");
 
 const express = require("express");
 const productRouter = require("./routes/productRoutes");
+const UserRouter = require("./routes/userRoutes");
 const app = express();
 app.use(express.json());
 
@@ -12,6 +13,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/products", productRouter);
+app.use("/api/users", UserRouter);
 
 app.use((req, res) => {
   res.status(404).json({
