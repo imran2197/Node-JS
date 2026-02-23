@@ -21,7 +21,7 @@ const ProductSchema = new mongoose.Schema(
       required: true,
     },
     category: {
-      type: String,
+      type: [String],
       required: true,
     },
   },
@@ -29,6 +29,22 @@ const ProductSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
+const validCategories = ["electronics", "clothes", "stationary", "furniture"];
+
+ProductSchema.pre("save", (next) => {
+  const invalidCategories = this.category.filter((category) => {
+    return !validCategories.includes(category);
+  });
+
+  if (invalidCategories.length > 0) {
+    return next(
+      new Error(`Invalid Categories ${invalidCategories.join(", ")}`),
+    );
+  } else {
+    next();
+  }
+});
 
 const ProductModel = mongoose.model("products", ProductSchema);
 
