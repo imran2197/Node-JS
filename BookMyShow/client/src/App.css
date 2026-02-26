@@ -1,3 +1,8 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -310,5 +315,108 @@ hr {
   .single-movie-img {
     margin-right: 0;
     margin-bottom: 1rem;
+  }
+}
+
+/* ================= MOVIE POSTER BACKGROUND ================= */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url("https://image.tmdb.org/t/p/original/9Gtg2DzBhmYamXBS1hKAhiwbBKS.jpg")
+    no-repeat center center/cover;
+  position: relative;
+}
+
+/* DARK OVERLAY */
+
+.auth-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.85),
+    rgba(0, 0, 0, 0.6),
+    rgba(0, 0, 0, 0.85)
+  );
+  backdrop-filter: blur(5px);
+  z-index: 1;
+}
+
+/* ================= GLASS CARD ================= */
+
+.auth-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  transition: 0.3s ease;
+}
+
+.auth-card .ant-form-item-label > label {
+  color: #fff !important;
+}
+
+.auth-card .ant-input,
+.auth-card .ant-input-password {
+  height: 45px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.auth-title {
+  text-align: center;
+  font-size: 30px;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+
+.auth-btn {
+  width: 100%;
+  height: 45px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #ff0000, #b30000);
+  border: none;
+  font-size: 16px;
+  color: #fff;
+  transition: 0.3s ease;
+}
+
+.auth-btn:hover {
+  transform: scale(1.03);
+  background: linear-gradient(90deg, #b30000, #ff0000);
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.auth-link {
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  color: #fff;
+  font-size: 14px;
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 2rem;
+    margin: 5px;
+  }
+
+  .auth-title {
+    font-size: 22px;
   }
 }
