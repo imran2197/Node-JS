@@ -1,14 +1,30 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Button, Form, Input } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, Form, Input, message } from "antd";
+import { registerUser } from "../../api/users";
 
 const Register = () => {
+  const navigate = useNavigate();
+
+  const onFinish = async (values) => {
+    try {
+      const response = await registerUser(values);
+      if (response.success) {
+        message.success(response.message);
+        navigate("/login");
+      } else {
+        message.error(response.message);
+      }
+    } catch (error) {
+      message.error(error.message);
+    }
+  };
   return (
     <>
       <main className="auth-page">
         <section className="auth-card register-card">
           <h1 className="auth-title">Create Account </h1>
-          <Form layout="vertical">
+          <Form layout="vertical" onFinish={onFinish}>
             <Form.Item
               label="Name"
               name="name"

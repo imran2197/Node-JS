@@ -1,16 +1,32 @@
 import React from "react";
 // import "./index.css";
 
-import { Link } from "react-router-dom";
-import { Button, Form, Input } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, Form, Input, message } from "antd";
+import { loginUser } from "../../api/users";
 
 const Login = () => {
+  const navigate = useNavigate();
+
+  const onFinish = async (values) => {
+    try {
+      const response = await loginUser(values);
+      if (response.success) {
+        message.success(response.message);
+        navigate("/");
+      } else {
+        message.error(response.message);
+      }
+    } catch (error) {
+      message.error(error.message);
+    }
+  };
   return (
     <>
       <main className="auth-page">
         <section className="auth-card">
           <h1 className="auth-title">Login</h1>
-          <Form layout="vertical">
+          <Form layout="vertical" onFinish={onFinish}>
             <Form.Item
               label="Email"
               name="email"
