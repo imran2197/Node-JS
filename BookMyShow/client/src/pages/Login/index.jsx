@@ -13,6 +13,7 @@ const Login = () => {
       const response = await loginUser(values);
       if (response.success) {
         message.success(response.message);
+        localStorage.setItem("token", response.data);
         navigate("/");
       } else {
         message.error(response.message);

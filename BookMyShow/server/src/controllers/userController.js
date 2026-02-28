@@ -1,5 +1,6 @@
 const UserModel = require("../models/userModel");
 const User = require("../models/userModel");
+const jwt = require("jsonwebtoken");
 
 const register = async (req, res) => {
   try {
@@ -35,7 +36,12 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await UserModel.findOne({ email });
-    if (!user) {
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    if (user === null || user === undefined) {
       res.status(404).json({
         success: false,
         message: "User does not exists. Please register.",
@@ -52,6 +58,7 @@ const login = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "You've successfully logged in!",
+      data: token,
     });
   } catch (err) {
     res.status(500).json({
