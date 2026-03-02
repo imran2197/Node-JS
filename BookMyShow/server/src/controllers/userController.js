@@ -1,24 +1,28 @@
 const UserModel = require("../models/userModel");
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
     const userExist = await User.findOne({ email });
-    console.log(userExist);
 
-    if (userExist !== null) {
+    if (userExist) {
       return res.status(400).json({
         success: false,
         message: "User Already Exists",
       });
     }
 
-    // const user = new User(req.body);
-    // await user.save();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    await User.create(req.body);
+    await User.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
 
     return res.status(201).json({
       success: true,
@@ -36,29 +40,37 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await UserModel.findOne({ email });
-
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    if (user === null || user === undefined) {
+    if (!user) {
       res.status(404).json({
         success: false,
         message: "User does not exists. Please register.",
       });
     }
 
-    if (password !== user.password) {
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res.status(400).json({
         success: false,
         message: "Invalid Email and Password",
       });
     }
 
+    const token = await jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+    });
+
     return res.status(200).json({
       success: true,
       message: "You've successfully logged in!",
-      data: token,
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
     });
   } catch (err) {
     res.status(500).json({
@@ -68,7 +80,16 @@ const login = async (req, res) => {
   }
 };
 
+const logout = (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({
+    success: true,
+    message: "You've successfully logged out!",
+  });
+};
+
 module.exports = {
   register,
   login,
+  logout,
 };
