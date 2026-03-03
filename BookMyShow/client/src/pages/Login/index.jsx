@@ -2,14 +2,18 @@ import React from "react";
 // import "./index.css";
 
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { Button, Form, Input, message } from "antd";
 import { loginUser } from "../../api/users";
+import { showLoading, hideLoading } from "../../redux/loaderSlice";
 
 const Login = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const onFinish = async (values) => {
     try {
+      dispatch(showLoading());
       const response = await loginUser(values);
       if (response.success) {
         message.success(response.message);
@@ -20,8 +24,11 @@ const Login = () => {
       }
     } catch (error) {
       message.error(error.message);
+    } finally {
+      dispatch(hideLoading());
     }
   };
+
   return (
     <>
       <main className="auth-page">
