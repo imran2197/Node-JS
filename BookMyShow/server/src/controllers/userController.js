@@ -58,7 +58,7 @@ const login = async (req, res) => {
     const token = await jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    res.cookie("token", token, {
+    res.cookie("token", `Bearer ${token}`, {
       httpOnly: true,
       maxAge: 1 * 24 * 60 * 60 * 1000,
     });
@@ -66,11 +66,6 @@ const login = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "You've successfully logged in!",
-      data: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
     });
   } catch (err) {
     res.status(500).json({
@@ -88,8 +83,19 @@ const logout = (req, res) => {
   });
 };
 
+const getCurrentUser = async (req, res) => {
+  const user = await User.findById(req.body.userId).select("-password");
+
+  res.status(200).json({
+    success: true,
+    message: "You are authorized to go tho the protected route.",
+    data: user,
+  });
+};
+
 module.exports = {
   register,
   login,
   logout,
+  getCurrentUser,
 };
